@@ -22,7 +22,7 @@ class Sessions:
     def _delSession(self, name=''):
         for x in self.list:
             if name == x[0]:
-                self.list.remove(name)
+                self.list.remove(x)
 #            else:
                 # raise error here
     def item(self, name=''):

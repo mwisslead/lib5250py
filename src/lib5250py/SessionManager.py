@@ -23,8 +23,22 @@ class SessionManager:
         return self.MasterSessionList.item(name)
     def closeSession(self, name=''):
         session = self.MasterSessionList.item(name)
-        if session.isConected():
-            session.disconect()
         self.MasterSessionList._delSession(name)
     def refresh(self):
         return self.MasterSessionList
+
+if __name__ == '__main__':
+    test = SessionManager()
+    print "Generating 10 test sessions."
+    for x in range(10):
+        test.openSession('test' + str(x))
+    print "Here is the list of the sessions:"
+    a = test.getSessions()
+    print a.list
+    print "Now removing the sessions one at a time"
+    for x in range(10):
+        test.closeSession('test' + str(x))
+        a = test.refresh()
+        print "One less"
+        print a.list
+    
