@@ -1,0 +1,170 @@
+Ok here is a document of the what I think the library should contain.
+
+- SessionManager
+     Functions:
+        closeSession(Session) - closes a session object
+        closeSession(String) - closes a session object based on a string 
+name/description
+        getSessions() - Returns an Sessions object containing a list of 
+Session object
+                        available.
+        openSession(String,String) - Returns a Session object based on the 
+parameters
+                                     provided.
+
+
+- Sessions
+     Functions:
+        getCount() - Returns the number of Session objects contained within 
+this object
+        item(int) - Returns the Session object at the given index.
+        item(String) - Returns the Session object with the given session 
+Name
+        refresh() - Updates the collection of Session objects
+
+- Session - An actual host session.
+     Functions:
+        connect() - Starts the communication with the host
+        disconnect() - Stops the communication with the host
+        getScreen() - returns a Screen object for this Session object
+        getSessionName() - returns the session name for this Session object
+        getConfigurationResource() - returns the configuration resource for 
+this Session
+                                     object.
+        getSessionType() - returns the session type for this Session object
+        isConnected() - returns whether or not this Session object is 
+connected with a host
+
+- Screen - The host presentation space.
+        This object will have reference too the presentaion planes.
+           TextPlane - holds the characters of the screen.
+           AttributePlane - holds the attributes of each position on the 
+screen
+           ColorPlane - holds the color of each position on the screen
+           FieldPlane - holds the field attributes for each position on the 
+screen.
+           XXXXXXXXXX - Maybe another?
+           YYYYYYYYYY - Maybe another?
+           ZZZZZZZZZZ - Maybe another?
+     Functions:
+        add_screen_listener - A callback function that will receive the 
+updates from the
+                              screen object.
+             The callback funtion will take the following parameters:
+                 initiator - who initiated the screen update
+                             values
+                               0            - Client initiated
+                               1            - Host initiated
+                 startRow - starting row of the screen update
+                 startColumn - starting column of the screen update
+                 endRow - ending row of the screen update
+                 endColumn - ending column of the screen update.
+
+        findString(String,int, int, int, boolean) - searches for a string in 
+the TextPlane,
+           based on start row, start col, length and whether to ignore case 
+or not.
+        getColumns() - number of columns for the presentation space
+        getCursor() -
+        getColumn() - return the current column position within the 
+presentation space
+        getRow() - return the current row position within the presentation 
+space
+        getPlaneData(int,int,int,int,int) - return the data from start row, start 
+column to
+           end row, end column, from which plane- 
+TextPlane,AttributePlane,ColorPlane
+           FieldPlane.
+        getFields() - return an object of Fields contained on the 
+presentation space.
+        getOIA() - Returns a reference to the Operator Information Area of 
+this presentation
+           space.
+        getRows() - returns the number rows for the presentation space
+        getString() - returns the entire TextPlane as a string
+        sendAid(int) -  Send an aid key to the host for processing.
+        sendKeys(String, int, int) - Sends text a string of keys to the 
+presentation space
+           starting in row, column.
+        setCursor(int,int) - set the current presentation space location at 
+row, column
+        sendString(String, int, int) - Sends a string of text/characters to 
+the presentation
+           space starting in row, column.
+
+- SessionOIA - Operator information area of the host session.  Used to 
+provide status                               information regarding the state 
+of the host session and cursor location.
+
+     Functions:
+	getInformationType - Which information change is being emitted
+           Values:
+              0 - System area
+              1 - Cursor Position change
+              2 - ?????
+              3 - ?????
+        getInputInhibited() - Whether or not input is inhibited or not
+           Values:
+              0 - Not inhibited
+              1 - System Wait - X System
+              2 - Error - Error message
+        getCursorColumn() - Column of the screen presentation space.
+        getCursorRow() - Row of the screen presentation space.
+
+- ScreenFields - Contains a collection of the fields in the virtual screen.
+     Functions:
+        findByPosition(int, int) - Searches the collection of fields for the 
+target position
+           and returns the field containing the position from row, column
+        getCount() - Returns the number of fields contained in the 
+collection of fields.
+        item(int) - Return the field from the fields collection at the index
+
+- ScreenField - The field element of the virtual screen presentation space.
+     It contains the data and attributes describing the field.
+     Functions:
+        getAttribute() - returns the attribute byte of the field
+        getData(int) - Returns data from the different planes of the field.
+        getEnd() - returns the ending position of the field
+        getLength() - returns the length of the field
+        getStart - returns the beginning position of the field
+        getString - returns the text plane of the field
+        getHighIntesityAttr - returns the high intensity attribute to be 
+used in for
+                                 HighIntesity fields.
+        getAdjustment - returns the adjustment for the field.
+        isAutoEnter - indicates whether the field is auto enter on exit
+        isContinued - indicates whether the field is a continued edit field
+        isContinuedFirst() - indicates whether the field is the first 
+element of a
+                                continued entry field
+        isContinuedMiddle() - indicates whether the field is an element of a
+                                 continued entry field
+        isContinuedLast() - indicates whether the field is the last element 
+of a
+                                continued entry field
+        isFieldExitRequired() - indicates whether the field requires the 
+field exit
+                                   key to exit the field
+        isMandatoryEnter() - indicates whether the field requires something 
+to be entered
+                                in the field before being able to exit the 
+field
+        isToUpper() - indicates whether the text entered in the field should 
+be converted
+                         to uppercase to not.
+        isHidden() - indicates whether the field is hidden or not.
+        isHighIntensity() - indicates whether the field is high intensity on 
+enter or not
+        isModified() - indicates whether the field is modified or not (the 
+modified data
+                          tag is set)
+        isSignedNumeric() - indicates whether the field is numeric or not.
+        isBypass() - indicates whether the field is bypassed and non 
+updatable or not.
+        setString(String) - sets the fields text plane to the specified 
+string
+
+
+
+
