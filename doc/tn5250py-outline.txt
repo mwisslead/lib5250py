@@ -3,24 +3,20 @@ Ok here is a document of the what I think the library should contain.
 - SessionManager
      Functions:
         closeSession(Session) - closes a session object
-        closeSession(String) - closes a session object based on a string 
-name/description
+        closeSession(String) - closes a session object based on a string name
         getSessions() - Returns an Sessions object containing a list of 
-Session object
-                        available.
-        openSession(String,String) - Returns a Session object based on the 
-parameters
-                                     provided.
+Session object available.
+        openSession(String) - Returns a Session object based on the parameters provided.
+	refresh() - same as getSessions()
 
 
 - Sessions
      Functions:
         getCount() - Returns the number of Session objects contained within 
 this object
-        item(int) - Returns the Session object at the given index.
+        item_index(int) - Returns the Session object at the given index.
         item(String) - Returns the Session object with the given session 
 Name
-        refresh() - Updates the collection of Session objects
 
 - Session - An actual host session.
      Functions:
