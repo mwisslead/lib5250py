@@ -5,7 +5,7 @@ from wxPython.wx import *
 
 import frmConnect
 
-modules ={u'frmConnect': [1, 'Main frame of Application', u'frmConnect.py']}
+modules ={'frmConnect': [1, 'Main frame of Application', 'frmConnect.py']}
 
 class BoaApp(wxApp):
     def OnInit(self):
