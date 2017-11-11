@@ -42,6 +42,42 @@ TRANSMIT_BINARY = chr(0)      # transmit binary RFC 856
 TIMING_MARK = chr(6)          # not used yet
 NEW_ENVIRONMENT = chr(39)     # not used yet
 
+AID_KEYS = {
+    'clear': 0xbd,
+    'enter': 0xf1,
+    'help': 0xf3,
+    'roll_up': 0xf4,
+    'roll_down': 0xf5,
+    'roll_left': 0xd9,
+    'roll_right': 0xda,
+    'print': 0xf6,
+    'f1': 0x31,
+    'f2': 0x32,
+    'f3': 0x33,
+    'f4': 0x34,
+    'f5': 0x35,
+    'f6': 0x36,
+    'f7': 0x37,
+    'f8': 0x38,
+    'f9': 0x39,
+    'f10': 0x3a,
+    'f11': 0x3b,
+    'f12': 0x3c,
+    'f13': 0xb1,
+    'f14': 0xb2,
+    'f15': 0xb3,
+    'f16': 0xb4,
+    'f17': 0xb5,
+    'f18': 0xb6,
+    'f19': 0xb7,
+    'f20': 0xb8,
+    'f21': 0xb9,
+    'f22': 0xba,
+    'f23': 0xbb,
+    'f24': 0xbc,
+}
+
+
 class vt5250:
     """vt5250 interface class.
     An instance of this class represents a connection to a telnet server.
@@ -725,6 +761,7 @@ class vt5250:
         """
         Send aid key and associated field format data to host
         """
+        aid = AID_KEYS.get(aid.lower(), aid)
         boasp = []
         boasp.append(self.screen.getCurrentRow())
         boasp.append(self.screen.getCurrentCol())
