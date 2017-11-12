@@ -9,6 +9,7 @@ Created by Kenneth J. Pouncey 2002-05-10
 from __future__ import print_function
 
 import sys
+import logging
 import socket
 import select
 import Queue
@@ -17,9 +18,9 @@ import Screen5250
 
 __all__ = ["vt5250"]
 
-# Tunable parameters
-DEBUGLEVEL = 0
+DEBUG = logging.getLogger(__name__).debug
 
+# Tunable parameters
 # buffersize
 BUFSIZE = 8*1024
 
@@ -102,7 +103,6 @@ class vt5250:
         With a hostname argument, it connects the instance; a port
         number is optional.
         """
-        self.debuglevel = DEBUGLEVEL
         self.host = host
         self.port = port
         self.sock = None
@@ -152,15 +152,7 @@ class vt5250:
         If extra arguments are present, they are substituted in the
         message using the standard string formatting operator.
         """
-        if self.debuglevel > 0:
-            print('Telnet5250(%s,%d):' % (self.host, self.port), end='')
-            print(msg % args)
-
-    def set_debuglevel(self, debuglevel):
-        """Set the debug level.
-        The higher it is, the more debug output you get (on sys.stdout).
-        """
-        self.debuglevel = debuglevel
+        DEBUG(('Telnet5250(%s,%d):' % (self.host, self.port)) + (msg % args))
 
     def close(self):
         """Close the connection."""
@@ -878,10 +870,11 @@ def test():
     """
     import signal
     import Screen5250
-    debuglevel = 0
-    while sys.argv[1:] and sys.argv[1] == '-d':
-        debuglevel = debuglevel+1
-        del sys.argv[1]
+
+    newargs = [arg for arg in sys.argv[1:] if arg != '-d']
+    if len(newargs) < len(sys.argv):
+        logging.basicConfig(level=logging.DEBUG)
+        sys.argv = sys.argv[:1] + newargs
     host = 'localhost'
     if sys.argv[1:]:
         host = sys.argv[1]
@@ -893,7 +886,6 @@ def test():
         except ValueError:
             port = socket.getservbyname(portstr, 'tcp')
     tn = vt5250(host, port)
-    tn.set_debuglevel(debuglevel)
     tn.setScreen(Screen5250.Screen5250())
     tn.open()
     while tn.running:

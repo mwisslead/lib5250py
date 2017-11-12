@@ -10,7 +10,6 @@ import ScreenFields
 __all__ = ["Screen5250"]
 
 # Tunable parameters
-DEBUGLEVEL = 0
 # Initial Attribute
 initAttr = 32
 
@@ -19,7 +18,6 @@ class Screen5250:
     #def __init__(self, host=None, port=0):
     def __init__(self):         #Constructor
         self._listeners = []
-        self.debuglevel = DEBUGLEVEL
         # Text Plane of screen
         self.textPlane = []
         # Attrubute Plane of screen
@@ -49,12 +47,6 @@ class Screen5250:
         while loop < self.screenLength:
             self.attrPlane.append(self.lastAttr)
             loop += 1
-
-    def set_debuglevel(self, debuglevel):
-        """Set the debug level.
-        The higher it is, the more debug output you get (on sys.stdout).
-        """
-        self.debuglevel = debuglevel
 
     def add_screen_listener( self , func ):
         # this is where we give it a "callback"

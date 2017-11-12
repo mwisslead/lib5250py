@@ -15,9 +15,6 @@ Cleaned up by P. Bielen - 2002-05-23
 
 __all__ = ["CodePage"]
 
-# Tunable parameters
-DEBUGLEVEL = 0
-
 # Conversion table generated mechanically by Free `recode' 3.5
 # for sequence IBM037..ISO-8859-1 (reversible).  */
 

@@ -8,7 +8,6 @@ import ScreenField
 __all__ = ["SessionFields"]
 
 # Tunable parameters
-DEBUGLEVEL = 0
 CMD_READ_INPUT_FIELDS = 0x42 ## 66
 CMD_READ_MDT_FIELDS = 0x52 ## 82
 CMD_READ_MDT_IMMEDIATE_ALT = 0x83 ## 131
@@ -17,15 +16,8 @@ class ScreenFields:
     """SessionFields interface class."""
     def __init__(self,screen):
         """Constructor."""
-        self.debuglevel = DEBUGLEVEL
         self.screen = screen
         self.clearFFT()
-
-    def set_debuglevel(self, debuglevel):
-        """Set the debug level.
-        The higher it is, the more debug output you get (on sys.stdout).
-        """
-        self.debuglevel = debuglevel
 
     def clearFFT(self):
         """

@@ -6,21 +6,11 @@ import Screen5250
 
 __all__ = ["SessionField"]
 
-# Tunable parameters
-DEBUGLEVEL = 0
-
 class ScreenField:
     """Session Field interface class. """
     def __init__(self,screen):
         """Constructor. """
-        self.debuglevel = DEBUGLEVEL
         self.screen = screen
-
-    def set_debuglevel(self, debuglevel):
-        """Set the debug level.
-        The higher it is, the more debug output you get (on sys.stdout).
-        """
-        self.debuglevel = debuglevel
 
     def setField(self,attr,row,col,len,ffw1,ffw2,fcw1,fcw2):
         """ Set the field attributes """
