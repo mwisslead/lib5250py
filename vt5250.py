@@ -117,20 +117,27 @@ class vt5250:
         # Create the queue
         self.queue = Queue.Queue()
 
-        if host:
-            self.open(host, port)
+    @property
+    def host(self):
+        return self._host
 
-    def open(self, host, port=0):
+    @host.setter
+    def host(self, host):
+        self._host = host or 'localhost'
+
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, port):
+        self._port = port or TELNET_PORT
+
+    def open(self):
         """Connect to a host.
-        The optional second argument is the port number, which
-        defaults to the standard telnet port (23).
         Don't try to reopen an already connected instance.
         """
         self.eof = 0
-        if not port:
-            port = TELNET_PORT
-        self.host = host
-        self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.host, self.port))
         self.interact()
@@ -887,10 +894,10 @@ def test():
             port = int(portstr)
         except ValueError:
             port = socket.getservbyname(portstr, 'tcp')
-    tn = vt5250()
+    tn = vt5250(host, port)
     tn.set_debuglevel(debuglevel)
     tn.setScreen(Screen5250.Screen5250())
-    tn.open(host, port)
+    tn.open()
     while tn.running:
        pass
     tn.close()

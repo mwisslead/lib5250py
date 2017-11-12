@@ -9,28 +9,18 @@ __all__ = ["Session"]
 
 # Tunable parameters
 DEBUGLEVEL = 0
-# Telnet Port
-TELNET_PORT = 23
 
 class Session:
     """Session interface class."""
-    def __init__(self,host=None,port=0):
+    def __init__(self, host=None, port=0):
         """Constructor."""
         self.debuglevel = DEBUGLEVEL
-        self.vt = vt5250()
+        self.vt = vt5250(host, port)
         self.vt.set_debuglevel(self.debuglevel)
         self.screen = Screen5250()
         self.screen.set_debuglevel(self.debuglevel)
         self.vt.setScreen(self.screen)
         self.screen.setVT(self.vt)
-        if host:
-            self.host = host
-        else:
-            self.host = 'localhost'
-        if port:
-            self.setPort(port)
-        else:
-            self.port = TELNET_PORT
 
     def set_debuglevel(self, debuglevel):
         """
@@ -42,19 +32,10 @@ class Session:
         self.screen.set_debuglevel(self.debuglevel)
 
     def connect(self):
-        self.vt.open(self.host,self.port)
+        self.vt.open()
 
     def disconnect(self):
         self.vt.close()
-
-    def setHost(self,host):
-        self.host = host
-
-    def setPort(self,port):
-        try:
-            self.port = int(port)
-        except ValueError:
-            self.port = TELNET_PORT
 
     def getScreen(self):
         return self.screen
