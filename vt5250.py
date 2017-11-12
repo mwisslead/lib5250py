@@ -6,7 +6,8 @@ Example:
 Created by Kenneth J. Pouncey 2002-05-10
 """
 
-# Import modules
+from __future__ import print_function
+
 import sys
 import socket
 import select
@@ -152,11 +153,8 @@ class vt5250:
         message using the standard string formatting operator.
         """
         if self.debuglevel > 0:
-            print 'Telnet5250(%s,%d):' % (self.host, self.port),
-            if args:
-                print msg % args
-            else:
-                print msg
+            print('Telnet5250(%s,%d):' % (self.host, self.port), end='')
+            print(msg % args)
 
     def set_debuglevel(self, debuglevel):
         """Set the debug level.
@@ -235,7 +233,7 @@ class vt5250:
 
     def read_incoming(self):
         """Read all data until EOF; block until connection closed."""
-        print 'reading'
+        print('reading')
         self.process_rawq()
         while not self.eof:
             self.readIncoming()
@@ -310,7 +308,7 @@ class vt5250:
             self.saveStrem = stream
         else:
             self.queue.put(stream)
-        print j,size,len(stream)
+        print(j,size,len(stream))
         #self.msg("recv from load stream %s", `stream`)
 
     def readIncoming(self):
@@ -344,7 +342,7 @@ class vt5250:
                 j = i
         if startOffset < idx:
             self.loadStream(buffer[startOffset:idx])
-        print idx,startOffset,len(self.buffer)
+        print(idx,startOffset,len(self.buffer))
         self.buffer = ''
 
     def sock_avail(self):
@@ -463,12 +461,12 @@ class vt5250:
         self.loadStream(self.buffer)
         while self.running:
             try:
-                print 'listener running'
+                print('listener running')
                 self.read_incoming()
             except EOFError:
-                print '*** Connection closed by remote host ***'
+                print('*** Connection closed by remote host ***')
                 return
-        print 'ended'
+        print('ended')
 
     def parse_stream(self):
         import struct
@@ -477,11 +475,11 @@ class vt5250:
         while self.running:
             self.dataStream = self.queue.get()
             if self.dataStream == None:
-                print 'data stream is None'
+                print('data stream is None')
                 self.running = 0
                 continue
             # Check contents of message and do what it says
-            # As a test, we simply print it
+            # As a test, we simply print(it)
             self.msg( 'message from queue %s', `self.dataStream`)
             self.msgLen = ((ord(self.dataStream[0]) & 0xff) << 8) | \
                           (ord(self.dataStream[1]) & 0xff)
@@ -595,7 +593,7 @@ class vt5250:
             control0 = self.dataStream[self.pos]
             self.pos += 1
             control1 = self.dataStream[self.pos]
-        #print 'in write to display'
+        #print('in write to display')
         while self.pos < self.msgLen and not done:
             self.pos += 1
             which1 = ord(self.dataStream[self.pos])
@@ -784,16 +782,16 @@ class vt5250:
                    << 8) | (ord(self.dataStream[self.pos + 2]) \
                             & 0xff)
         self.pos += 2
-        print length
+        print(length)
         self.pos += 1
         StartOfHeaderOrder = ord(self.dataStream[self.pos])
-        print StartOfHeaderOrder
+        print(StartOfHeaderOrder)
         self.pos += 1
         queryrequest = ord(self.dataStream[self.pos])
-        print queryrequest
+        print(queryrequest)
         self.pos += 1
         ord(self.dataStream[self.pos])
-        print 'now lets send query response'
+        print('now lets send query response')
         self.sendQueryResponse()
 
     def sendQueryResponse(self):
@@ -901,9 +899,9 @@ def test():
     while tn.running:
        pass
     tn.close()
-    print 'I am here'
+    print('I am here')
     sys.exit
-    print 'After exit'
+    print('After exit')
 
     def onSignal(signum, stackFrame):
         """

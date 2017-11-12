@@ -2,6 +2,9 @@
 Screen object
 Created by Kenneth J. Pouncey 2002-05-18
 """
+
+from __future__ import print_function
+
 import ScreenFields
 
 __all__ = ["Screen5250"]
@@ -100,7 +103,7 @@ class Screen5250:
         pos = self.lastPos
         sf = self.screenFields.setField(attr,self.getCurrentRow(), \
             self.getCurrentCol(),fLength,ffw0,ffw1,fcw1,fcw2)
-        print sf.toString()
+        print(sf.toString())
         # now lets initialize the planes for the field
         while fLength > 0:
             if self.textPlane[pos] == 0:
@@ -120,7 +123,7 @@ class Screen5250:
         """
         This routine is used to set attributes in the Attribute Plane
         """
-        # print chr(char), ' at ' , self.getCurrentRow(),
+        # print(chr(char), ' at ' , self.getCurrentRow(),)
         # ' , ' , self.getCurrentCol()
         self.lastAttr = attr
         self.attrPlane[self.lastPos] = attr
