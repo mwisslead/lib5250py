@@ -8,13 +8,15 @@ import ScreenField
 __all__ = ["SessionFields"]
 
 # Tunable parameters
-CMD_READ_INPUT_FIELDS = 0x42 ## 66
-CMD_READ_MDT_FIELDS = 0x52 ## 82
-CMD_READ_MDT_IMMEDIATE_ALT = 0x83 ## 131
+CMD_READ_INPUT_FIELDS = 0x42  # 66
+CMD_READ_MDT_FIELDS = 0x52  # 82
+CMD_READ_MDT_IMMEDIATE_ALT = 0x83  # 131
+
 
 class ScreenFields:
     """SessionFields interface class."""
-    def __init__(self,screen):
+
+    def __init__(self, screen):
         """Constructor."""
         self.screen = screen
         self.clearFFT()
@@ -28,10 +30,10 @@ class ScreenFields:
         self.sizeFields = 0
         self.nextField = 0
         self.fieldIds = 0
-        self.cpfExists = 0;   # clear the cursor progression fields flag
-        masterMDT = 0;
+        self.cpfExists = 0   # clear the cursor progression fields flag
+        masterMDT = 0
 
-    def existsAtPos(self,pos):
+    def existsAtPos(self, pos):
         """
             does a field exist at the position passed in
         """
@@ -46,7 +48,7 @@ class ScreenFields:
         """ Is the master modified data tag set """
         return self.masterMDT
 
-    def setCurrentField(self,field):
+    def setCurrentField(self, field):
         """ Set the current field to the field passed in """
         self.currentField = field
 
@@ -66,13 +68,13 @@ class ScreenFields:
         """
         return self.currentField
 
-    def setField(self,attr,row,col,len,ffw1,ffw2,fcw1,fcw2):
+    def setField(self, attr, row, col, len, ffw1, ffw2, fcw1, fcw2):
         """
             Set a field in the current session screen 
         """
         self.screenFields.append(ScreenField.ScreenField(self.screen))
         sf = self.screenFields[self.nextField]
-        sf.setField(attr,row-1,col-1,len,ffw1,ffw2,fcw1,fcw2)
+        sf.setField(attr, row - 1, col - 1, len, ffw1, ffw2, fcw1, fcw2)
         self.nextField += 1
         self.sizeFields += 1
         if not sf.isBypassField():
@@ -87,7 +89,7 @@ class ScreenFields:
         masterMDT = self.currentField.mdt
         return self.currentField
 
-    def readFormatTable(self,boasp,readType,codePage):
+    def readFormatTable(self, boasp, readType, codePage):
         """
             Read the current screen fields and format them so that they can
             be sent to the Host
@@ -99,18 +101,18 @@ class ScreenFields:
                 if sf.mdt or (readType == CMD_READ_INPUT_FIELDS):
                     sb = sf.getText()
                     if readType == CMD_READ_MDT_FIELDS or \
-                        readType == CMD_READ_MDT_IMMEDIATE_ALT:
-                            len2 = len(sb) - 1
-                            while len2 >= 0 and sb[len2] < ' ':
-                                sb = sb[:-1]
-                                len2 -= 1
+                            readType == CMD_READ_MDT_IMMEDIATE_ALT:
+                        len2 = len(sb) - 1
+                        while len2 >= 0 and sb[len2] < ' ':
+                            sb = sb[:-1]
+                            len2 -= 1
                     if sf.isSignedNumeric() and len(sb) > 0 and sb[-1] == '-':
                         isSigned = 1
                     len3 = len(sb)
-                    if len3 > 0 or (readType == CMD_READ_MDT_FIELDS or \
-                            readType == CMD_READ_MDT_IMMEDIATE_ALT):
-                        if len3 > 0 or (readType == CMD_READ_MDT_FIELDS or \
-                                readType == CMD_READ_MDT_IMMEDIATE_ALT):
+                    if len3 > 0 or (readType == CMD_READ_MDT_FIELDS or
+                                    readType == CMD_READ_MDT_IMMEDIATE_ALT):
+                        if len3 > 0 or (readType == CMD_READ_MDT_FIELDS or
+                                        readType == CMD_READ_MDT_IMMEDIATE_ALT):
                             boasp.append(17)
                             boasp.append(sf.startRow() + 1)
                             boasp.append(sf.startCol() + 1)
@@ -119,19 +121,20 @@ class ScreenFields:
                             if sb[k] < ' ':
                                 boasp.append(codePage.uni2ebcdic(' '))
                             else:
-                                if isSigned and k == len3 -1:
+                                if isSigned and k == len3 - 1:
                                     boasp.append(0xd0 | (0x0f & c))
                                 else:
-                                    boasp.append(ord(codePage.uni2ebcdic(sb[k])))
-                            k +=1                                
+                                    boasp.append(
+                                        ord(codePage.uni2ebcdic(sb[k])))
+                            k += 1
 
-    def __getitem__(self,i):
+    def __getitem__(self, i):
         if i < self.sizeFields:
             return self.screenFields[i]
         else:
             raise IndexError
 
-    def getItem(self,i):
+    def getItem(self, i):
         if i < self.sizeFields:
             return self.screenFields[i]
         else:

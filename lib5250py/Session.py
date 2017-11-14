@@ -7,8 +7,10 @@ from Screen5250 import Screen5250
 
 __all__ = ["Session"]
 
+
 class Session:
     """Session interface class."""
+
     def __init__(self, host=None, port=0):
         """Constructor."""
         self.vt = vt5250(host, port)

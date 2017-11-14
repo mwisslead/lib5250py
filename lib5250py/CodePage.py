@@ -15,7 +15,9 @@ Cleaned up by P. Bielen - 2002-05-23
 
 __all__ = ["CodePage"]
 
+
 class CodePage:
+
     def __init__(self, codePage=None):
         self.setCodePage(codePage)
 

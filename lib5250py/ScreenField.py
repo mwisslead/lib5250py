@@ -6,22 +6,24 @@ import Screen5250
 
 __all__ = ["SessionField"]
 
+
 class ScreenField:
     """Session Field interface class. """
-    def __init__(self,screen):
+
+    def __init__(self, screen):
         """Constructor. """
         self.screen = screen
 
-    def setField(self,attr,row,col,len,ffw1,ffw2,fcw1,fcw2):
+    def setField(self, attr, row, col, len, ffw1, ffw2, fcw1, fcw2):
         """ Set the field attributes """
         self.length = len
         self.startPos = (row * self.screen.getCols()) + col
-        self.endPos = self.startPos + len -1
+        self.endPos = self.startPos + len - 1
         self.cursorProg = 0
         self.fieldId = 0
         self.attr = attr
-        self.setFFWs(ffw1,ffw2)
-        self.setFCWs(fcw1,fcw2)
+        self.setFFWs(ffw1, ffw2)
+        self.setFCWs(fcw1, fcw2)
         self.next = None
         self.prev = None
         return self
@@ -35,17 +37,17 @@ class ScreenField:
     def getLength(self):
         return self.length
 
-    def setFFWs(self,ffw1,ffw2):
-        self.ffw1 = ffw1;
-        self.ffw2 = ffw2;
-        self.mdt = (ffw1 & 0x8 ) == 0x8;
-        return self.mdt;
+    def setFFWs(self, ffw1, ffw2):
+        self.ffw1 = ffw1
+        self.ffw2 = ffw2
+        self.mdt = (ffw1 & 0x8) == 0x8
+        return self.mdt
 
-    def setFCWs(self,fcw1,fcw2):
-        self.fcw1 = fcw1;
-        self.fcw2 = fcw2;
+    def setFCWs(self, fcw1, fcw2):
+        self.fcw1 = fcw1
+        self.fcw2 = fcw2
         if (fcw1 == 0x88):
-            self.cursorProg = fcw2;
+            self.cursorProg = fcw2
 
     def getFFW1(self):
         return self.ffw1
@@ -65,19 +67,19 @@ class ScreenField:
     def getFieldId(self):
         return self.fieldId
 
-    def setFieldId(self,fi):
+    def setFieldId(self, fi):
         self.fieldId = fi
 
     def getCursorProgression(self):
         return self.cursorProg
 
     def getCursorRow(self):
-        return cursorPos / self.screen.getCols();
+        return cursorPos / self.screen.getCols()
 
     def getCursorCol(self):
-        return cursorPos % self.screen.getCols();
+        return cursorPos % self.screen.getCols()
 
-    def changePos(self,i):
+    def changePos(self, i):
         self.cursorPos += i
 
     def getText(self):
@@ -88,7 +90,7 @@ class ScreenField:
             start += 1
         return text
 
-    def setString(self,text):
+    def setString(self, text):
         start = self.startPos
         for x in text:
             self.screen.textPlane[start] = x
@@ -96,7 +98,7 @@ class ScreenField:
         self.mdt = 1
         self.screen.notify_screen_listeners(0)
 
-    def setFieldChar(self,c):
+    def setFieldChar(self, c):
         x = self.length
         self.cursorPos = self.startPos
         while x > 0:
@@ -141,11 +143,11 @@ class ScreenField:
     def isSignedNumeric(self):
         return (self.getFieldShift() == 7)
 
-    def getKeyPosRC(self,row1,col1):
-        x = ((row1 * self.screen.getCols()) + col1);
-        y = x - self.startPos;
-        self.cursorPos = x;
-        return y;
+    def getKeyPosRC(self, row1, col1):
+        x = ((row1 * self.screen.getCols()) + col1)
+        y = x - self.startPos
+        self.cursorPos = x
+        return y
 
     def getKeyPos(self, pos):
         y = self.pos - self.startPos
@@ -155,7 +157,7 @@ class ScreenField:
     def getCurrentPos(self):
         return self.cursorPos
 
-    def withinField(self,pos):
+    def withinField(self, pos):
         if (pos >= self.startPos) and (pos <= self.endPos):
             return 1
         return 0
@@ -173,8 +175,8 @@ class ScreenField:
         return self.endPos
 
     def toString(self):
-        return 'startRow =', self.startRow(), 'startCol =',self.startCol(), \
-               'length =',self.length,'ffw1 = ',self.ffw1,'ffw2 = ',self.ffw1, \
-               'is bypass field',self.isBypassField(),'isAutoEnter', \
-               self.isAutoEnter(),'is Mandatory Enter',self.isMandatoryEnter(), \
-               'modified',self.mdt
+        return 'startRow =', self.startRow(), 'startCol =', self.startCol(), \
+               'length =', self.length, 'ffw1 = ', self.ffw1, 'ffw2 = ', self.ffw1, \
+               'is bypass field', self.isBypassField(), 'isAutoEnter', \
+               self.isAutoEnter(), 'is Mandatory Enter', self.isMandatoryEnter(), \
+               'modified', self.mdt

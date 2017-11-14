@@ -22,15 +22,15 @@ DEBUG = logging.getLogger(__name__).debug
 
 # Tunable parameters
 # buffersize
-BUFSIZE = 8*1024
+BUFSIZE = 8 * 1024
 
 # Telnet protocol defaults
 TELNET_PORT = 23
 
 # Telnet protocol characters (don't change)
-IAC  = chr(255) # "Interpret As Command"
+IAC = chr(255)  # "Interpret As Command"
 DONT = chr(254)
-DO   = chr(253)
+DO = chr(253)
 WONT = chr(252)
 WILL = chr(251)
 theNULL = chr(0)
@@ -179,11 +179,11 @@ class vt5250:
         socket.error if the connection is closed.
         """
         if IAC in buffer:
-            buffer = buffer.replace(IAC, IAC+IAC)
+            buffer = buffer.replace(IAC, IAC + IAC)
         self.msg("send %s", `buffer`)
         self.sock.send(buffer)
 
-    def writeGDS(self,flags, opcode, bytes):
+    def writeGDS(self, flags, opcode, bytes):
         """Write a string to the socket, doubling any IAC characters.
         Can block if the connection is blocked.  May raise
         socket.error if the connection is closed.
@@ -191,9 +191,9 @@ class vt5250:
         length = 10
         buffer = []
         if len(bytes) > 0:
-           if IAC in bytes:
-              bytes = bytes.replace(IAC, IAC+IAC)
-           length = len(bytes) + 10
+            if IAC in bytes:
+                bytes = bytes.replace(IAC, IAC + IAC)
+            length = len(bytes) + 10
         buffer = chr(length >> 8)
         buffer += chr(length & 0xff)
         buffer += chr(0x12)
@@ -211,7 +211,7 @@ class vt5250:
         buffer += EOR
         self.msg("send %s", `buffer`)
         self.sock.send(buffer)
-        #self.sock.flush()
+        # self.sock.flush()
 
     def read_all(self):
         """Read all data until EOF; block until connection closed."""
@@ -245,7 +245,7 @@ class vt5250:
             while self.rawq:
                 c = self.rawq_getchar()
                 buf = buf + c
-        except EOFError: # raised by self.rawq_getchar()
+        except EOFError:  # raised by self.rawq_getchar()
             pass
         self.cookedq = self.cookedq + buf
 
@@ -279,7 +279,7 @@ class vt5250:
         self.eof = (not buf)
         self.rawq = self.rawq + buf
 
-    def loadStream(self,stream):
+    def loadStream(self, stream):
         """
         Fill raw queue from exactly one recv() system call.
         Block if no data is immediately available.
@@ -289,18 +289,18 @@ class vt5250:
         size = 0
         self.msg("recv from load stream %s", `stream`)
         if self.saveStream == '':
-            j = (ord(stream[0]) & 0xff) << 8 | (ord(stream[1]) & 0xff);
-            size = len(stream);
+            j = (ord(stream[0]) & 0xff) << 8 | (ord(stream[1]) & 0xff)
+            size = len(stream)
         else:
             size = len(self.saveStream) + len(stream)
             stream = self.saveStream + stream
-            j = (ord(stream[0]) & 0xff) << 8 | (ord(stream[1]) & 0xff);
+            j = (ord(stream[0]) & 0xff) << 8 | (ord(stream[1]) & 0xff)
             self.saveStream = ''
         if j > size:
             self.saveStrem = stream
         else:
             self.queue.put(stream)
-        print(j,size,len(stream))
+        print(j, size, len(stream))
         #self.msg("recv from load stream %s", `stream`)
 
     def readIncoming(self):
@@ -319,7 +319,7 @@ class vt5250:
         j = -1
         startOffset = 0
         indices = range(len(self.buffer))
-        for idx in indices :
+        for idx in indices:
             i = self.buffer[idx]
             if (j == IAC) and (i == IAC):
                 j = -1
@@ -334,7 +334,7 @@ class vt5250:
                 j = i
         if startOffset < idx:
             self.loadStream(buffer[startOffset:idx])
-        print(idx,startOffset,len(self.buffer))
+        print(idx, startOffset, len(self.buffer))
         self.buffer = ''
 
     def sock_avail(self):
@@ -350,8 +350,8 @@ class vt5250:
         buf = ''
         done = 0
         try:
-           c = self.rawq_getchar()
-           while c == IAC:
+            c = self.rawq_getchar()
+            while c == IAC:
                 c = self.rawq_getchar()
                 if c == IAC:
                     buf = buf + c
@@ -380,7 +380,7 @@ class vt5250:
                         self.sock.send(IAC + WONT + opt)
                 elif c == DONT:
                     opt = self.rawq_getchar()
-                    self.msg('IAC %s %d', c == DO and 'DO' or 'DONT', \
+                    self.msg('IAC %s %d', c == DO and 'DO' or 'DONT',
                              ord(c))
                     self.sock.send(IAC + WONT + opt)
                 elif c == WILL:
@@ -397,7 +397,7 @@ class vt5250:
                         self.msg('IAC WILL %d', ord(opt))
                         self.msg('sending : IAC DONT %d', ord(opt))
                         self.sock.send(IAC + DONT + opt)
-                elif c  == WONT:
+                elif c == WONT:
                     opt = self.rawq_getchar()
                     self.msg('IAC %s %d',
                              c == WILL and 'WILL' or 'WONT', ord(c))
@@ -407,15 +407,15 @@ class vt5250:
                     if sbOpt == TERMINAL_TYPE:
                         if self.rawq_getchar() == chr(1):
                             self.msg('sending: TERMINAL_TYPE')
-                            self.sock.send(IAC + SB + TERMINAL_TYPE + \
-                                           QUAL_IS + 'IBM-3179-2' + \
+                            self.sock.send(IAC + SB + TERMINAL_TYPE +
+                                           QUAL_IS + 'IBM-3179-2' +
                                            IAC + SE)
                 elif c == SE:
                     self.msg('ENDING Subnegotiation')
                 else:
                     self.msg('IAC %s not recognized' % `c`)
                 c = self.rawq_getchar()
-        except EOFError: # raised by self.rawq_getchar()
+        except EOFError:  # raised by self.rawq_getchar()
             pass
         self.cookedq = self.cookedq + buf
         self.buffer = self.rawq
@@ -443,8 +443,7 @@ class vt5250:
         self.running = 1
         self.dataProducerThread = threading.Thread(target=self.listener)
         self.dataProducerThread.start()
-        self.dataConsumerThread = \
-                                threading.Thread(target=self.parse_stream)
+        self.dataConsumerThread = threading.Thread(target=self.parse_stream)
         self.dataConsumerThread.start()
 
     def listener(self):
@@ -463,7 +462,7 @@ class vt5250:
     def parse_stream(self):
         import struct
         import operator
-        self.msg ('parse stream running')
+        self.msg('parse stream running')
         while self.running:
             self.dataStream = self.queue.get()
             if self.dataStream == None:
@@ -472,49 +471,49 @@ class vt5250:
                 continue
             # Check contents of message and do what it says
             # As a test, we simply print(it)
-            self.msg( 'message from queue %s', `self.dataStream`)
+            self.msg('message from queue %s', `self.dataStream`)
             self.msgLen = ((ord(self.dataStream[0]) & 0xff) << 8) | \
                           (ord(self.dataStream[1]) & 0xff)
-            opcode = ord(self.dataStream[9] )
+            opcode = ord(self.dataStream[9])
             dataStart = 6 + ord(self.dataStream[6])
             self.pos = dataStart
-            self.msg( 'opcode from stream buffer %s', `opcode`)
-            self.msg( 'msg length from stream buffer %s', \
-                      `self.msgLen`)
-            self.msg( 'data start from stream buffer %s', `dataStart`)
+            self.msg('opcode from stream buffer %s', `opcode`)
+            self.msg('msg length from stream buffer %s',
+                     `self.msgLen`)
+            self.msg('data start from stream buffer %s', `dataStart`)
             if opcode == 0:
-                self.msg( 'No Operation ')
+                self.msg('No Operation ')
             elif opcode == 1:
-                self.msg( 'Invite Operation ')
+                self.msg('Invite Operation ')
                 self.parseIncoming()
             elif opcode == 2:
-                self.msg( 'Output only ')
+                self.msg('Output only ')
                 self.parseIncoming()
             elif opcode == 3:
-                self.msg( 'Put/Get Operation ')
+                self.msg('Put/Get Operation ')
                 self.parseIncoming()
             elif opcode == 4:
-                self.msg( 'Save Screen Operation ')
+                self.msg('Save Screen Operation ')
                 self.parseIncoming()
             elif opcode == 5:
-                self.msg( 'Restore Screen Operation ')
+                self.msg('Restore Screen Operation ')
                 self.parseIncoming()
             elif opcode == 6:
-                self.msg( 'Read Immediate ')
+                self.msg('Read Immediate ')
             elif opcode == 7:
-                self.msg( 'Reserved ')
+                self.msg('Reserved ')
             elif opcode == 8:
-                self.msg( 'Read Screen Operation ')
+                self.msg('Read Screen Operation ')
             elif opcode == 9:
-                self.msg( 'Reserved ')
+                self.msg('Reserved ')
             elif opcode == 10:
-                self.msg( 'Cancel Invite ')
+                self.msg('Cancel Invite ')
             elif opcode == 11:
-                self.msg( 'Turn on message light ')
+                self.msg('Turn on message light ')
             elif opcode == 12:
-                self.msg( 'Turn off message light ')
+                self.msg('Turn off message light ')
             else:
-                self.msg( 'Invalid Operation Code ')
+                self.msg('Invalid Operation Code ')
         self.msg('at end of queue')
 
     def parseIncoming(self):
@@ -527,48 +526,48 @@ class vt5250:
         controlChars = 0
         while self.pos < self.msgLen and not done:
             self.pos += 1
-            b = ord(self.dataStream[self.pos] )
+            b = ord(self.dataStream[self.pos])
             if b == 0 or b == 1 or b == 4:
                 pass
             elif b == 2 or b == 3:
-                self.msg( 'Save Screen')
+                self.msg('Save Screen')
             elif b == 7:
-                self.msg( 'Audible bell')
+                self.msg('Audible bell')
                 self.pos += 2
             elif b == 17:
-                self.msg( 'Write to display')
+                self.msg('Write to display')
                 self.writeToDisplay(0)
             elif b == 18 or b == 19:
-                self.msg( 'Restore Screen')
+                self.msg('Restore Screen')
             elif b == 32:
-                self.msg( 'Clear unit Alternate')
+                self.msg('Clear unit Alternate')
                 self.screen.clearAll()
             elif b == 33:
-                self.msg( 'Write Error Code')
+                self.msg('Write Error Code')
             elif b == 34:
-                self.msg( 'Write Error Code to Window')
+                self.msg('Write Error Code to Window')
             elif b == 64:
-                self.msg( 'Clear Unit')
+                self.msg('Clear Unit')
                 self.screen.clearAll()
             elif b == 80:
-                self.msg( 'Clear Format Table')
+                self.msg('Clear Format Table')
                 self.screen.clearFFT()
             elif b == 98 or b == 102:
-                self.msg( 'Read Screen Immediate')
+                self.msg('Read Screen Immediate')
             elif b == 66 or b == 82:
-                self.msg( 'Read Input Fields or MDT Fields ')
+                self.msg('Read Input Fields or MDT Fields ')
                 self.readType = b
                 self.screen.goHome()
                 self.screen.notify_screen_listeners(1)
             elif b == 83:
-                self.msg( 'Read MDT Immediate Alt')
+                self.msg('Read MDT Immediate Alt')
             elif b == 243:
-                self.msg( 'Write Structured Field')
+                self.msg('Write Structured Field')
                 self.writeStructuredField()
             else:
-                self.msg( 'invalid option %s',b)
+                self.msg('invalid option %s', b)
 
-    def writeToDisplay(self,controlsExist):
+    def writeToDisplay(self, controlsExist):
         """Parse the incoming data stream."""
         pos = 0
         error = 0
@@ -590,7 +589,7 @@ class vt5250:
             self.pos += 1
             which1 = ord(self.dataStream[self.pos])
             if which1 == 1:    # Start of Header
-                self.msg( 'Start of Header')
+                self.msg('Start of Header')
                 error = self.processSOH()
             elif which1 == 2:    # Repeat to Address
                 row = self.screen.getCurrentRow()
@@ -599,7 +598,7 @@ class vt5250:
                 toRow = ord(self.dataStream[self.pos])
                 self.pos += 1
                 toCol = (ord(self.dataStream[self.pos]) & 0xff)
-                rows  = self.screen.getRows()
+                rows = self.screen.getRows()
                 cols = self.screen.getCols()
                 if toRow >= row:
                     self.pos += 1
@@ -615,10 +614,10 @@ class vt5250:
                         while times >= 0:
                             self.screen.setChar(repeat)
                             times -= 1
-                self.msg( 'RA - Repeat to address %s, %s',toRow,toCol)
+                self.msg('RA - Repeat to address %s, %s', toRow, toCol)
             elif which1 == 3:    # EA - Erase to address
                 # need to implement later
-                self.msg( 'Erase to Address')
+                self.msg('Erase to Address')
             elif which1 == 4:    # Escape
                 done = 1
                 self.msg('Escape')
@@ -630,23 +629,23 @@ class vt5250:
                 saRow = ord(self.dataStream[self.pos])
                 self.pos += 1
                 saCol = (ord(self.dataStream[self.pos]) & 0xff)
-                self.screen.moveTo(saRow,saCol)
-                self.msg('SBA - Set buffer Address %s %s',saRow,saCol)
+                self.screen.moveTo(saRow, saCol)
+                self.msg('SBA - Set buffer Address %s %s', saRow, saCol)
             elif which1 == 18:    # WEA - Extended Attribute
                 self.pos += 1
                 self.dataStream[self.pos]
                 self.pos += 1
                 self.dataStream[self.pos]
                 self.msg('WEA - Extended Attribute')
-            elif which1 == 19 or which1 == 20 :    # IC - Insert Cursor
+            elif which1 == 19 or which1 == 20:    # IC - Insert Cursor
                                                    # MC - Move Cursor
                 self.pos += 1
                 icX = ord(self.dataStream[self.pos])
                 self.pos += 1
                 icY = (ord(self.dataStream[self.pos]) & 0xff)
                 self.msg( 'IC or MC - Insert Cursor or Move Cursor \
-                %s,%s',icX,icY)
-                self.screen.setPendingInsert(1,icX,icY)
+                %s,%s', icX, icY)
+                self.screen.setPendingInsert(1, icX, icY)
             elif which1 == 21:
                 # WTDSF - Write to Display Structured Field order
                 # implement later
@@ -673,7 +672,7 @@ class vt5250:
                     ffw1 = (ord(self.dataStream[self.pos]) & 0xff)  # FFW1
                     self.pos += 1
                     fcw1 = (ord(self.dataStream[self.pos]) & 0xff)
-                    #check for field
+                    # check for field
                     # after processing the Field format word we check if
                     # the next byte is the field attribute byte or not.
                     # If it is not an attribute byte then we have a field
@@ -697,13 +696,13 @@ class vt5250:
                 # We then parse the length of the field by using the next
                 # to bytes.  Shifting the first byte and using logical or
                 # of the next byte will obtain us the length of the field
-                fLength = ((ord(self.dataStream[self.pos + 1]) & 0xff) \
-                           << 8) | (ord(self.dataStream[self.pos + 2]) \
+                fLength = ((ord(self.dataStream[self.pos + 1]) & 0xff)
+                           << 8) | (ord(self.dataStream[self.pos + 2])
                                     & 0xff)
                 self.pos += 2
-                self.screen.addField(attr,fLength,ffw0,ffw1,fcw1,fcw2)
+                self.screen.addField(attr, fLength, ffw0, ffw1, fcw1, fcw2)
                 self.msg(' Start of field with <length %s> <ffw0 %s> \
-                <ffw1 %s> <fcw1 %s> <fcw2 %s>',fLength,ffw0,ffw1,fcw1,fcw2)
+                <ffw1 %s> <fcw1 %s> <fcw2 %s>', fLength, ffw0, ffw1, fcw1, fcw2)
             else:
                 byte0 = (ord(self.dataStream[self.pos]) & 0xff)
                 if self.isAttribute(byte0):
@@ -731,30 +730,30 @@ class vt5250:
             self.pos += 1
             self.dataStream[self.pos]    # Error line
             byte1 = 0
-            if len >= 5 :
+            if len >= 5:
                 self.pos += 1
                 byte1 = ord(self.dataStream[self.pos])
-            if len >= 6 :
+            if len >= 6:
                 self.pos += 1
                 byte1 = ord(self.dataStream[self.pos])
-            if len >= 7 :
+            if len >= 7:
                 self.pos += 1
                 byte1 = ord(self.dataStream[self.pos])
             return 0
         else:
             return 1
 
-    def isAttribute(self,byte):
+    def isAttribute(self, byte):
         """ Check if the byte is an attribute byte or not """
-        return (byte & 0xe0) == 0x20;
+        return (byte & 0xe0) == 0x20
 
-    def getASCIIChar(self,byte):
+    def getASCIIChar(self, byte):
         return self.codePage.ebcdic2uni(byte)
 
-    def setScreen(self,screen):
+    def setScreen(self, screen):
         self.screen = screen
 
-    def sendAidKey(self,aid):
+    def sendAidKey(self, aid):
         """
         Send aid key and associated field format data to host
         """
@@ -763,16 +762,16 @@ class vt5250:
         boasp.append(self.screen.getCurrentRow())
         boasp.append(self.screen.getCurrentCol())
         boasp.append(aid)
-        self.screen.getFields().readFormatTable(boasp,self.readType,self.codePage)
-        self.writeGDS(0,3,boasp)
+        self.screen.getFields().readFormatTable(boasp, self.readType, self.codePage)
+        self.writeGDS(0, 3, boasp)
 
     def writeStructuredField(self):
         """
         Write structured field for query message response
         """
-        length = ((ord(self.dataStream[self.pos + 1]) & 0xff) \
-                   << 8) | (ord(self.dataStream[self.pos + 2]) \
-                            & 0xff)
+        length = ((ord(self.dataStream[self.pos + 1]) & 0xff)
+                  << 8) | (ord(self.dataStream[self.pos + 2])
+                           & 0xff)
         self.pos += 2
         print(length)
         self.pos += 1
@@ -796,20 +795,20 @@ class vt5250:
             5.3
         """
         abyte = []
-        abyte.append(0x00)  ## Cursor row column set to 0,0
+        abyte.append(0x00)  # Cursor row column set to 0,0
         abyte.append(0x00)
-        abyte.append(0x88)  ## 0x88 inbound write structure field aid
-        abyte.append(0x00)  ## length of query response
-        abyte.append(0x3A)  ##   Set to 58 for normal emulation
-        abyte.append(0xD9)  ## command class
-        abyte.append(0x70)  ## command type query
-        abyte.append(0x80)  ## Flag byte
-        abyte.append(0x06)  ## controller hardware class
-        abyte.append(0x00)  ## 0x0600 - other WSF or another 5250 emulator
-        abyte.append(0x01)  ## Controller Code Level
+        abyte.append(0x88)  # 0x88 inbound write structure field aid
+        abyte.append(0x00)  # length of query response
+        abyte.append(0x3A)  # Set to 58 for normal emulation
+        abyte.append(0xD9)  # command class
+        abyte.append(0x70)  # command type query
+        abyte.append(0x80)  # Flag byte
+        abyte.append(0x06)  # controller hardware class
+        abyte.append(0x00)  # 0x0600 - other WSF or another 5250 emulator
+        abyte.append(0x01)  # Controller Code Level
         abyte.append(0x01)
         abyte.append(0x00)
-        abyte.append(0x0) ## 13 - 28 are reserved
+        abyte.append(0x0)  # 13 - 28 are reserved
         abyte.append(0x0)
         abyte.append(0x0)
         abyte.append(0x0)
@@ -825,27 +824,28 @@ class vt5250:
         abyte.append(0x0)
         abyte.append(0x0)
         abyte.append(0x0)
-        abyte.append(0x01) ## device type - 0x01 5250 Emulator
-        abyte.append(ord(self.codePage.uni2ebcdic('5'))) ## device type character
+        abyte.append(0x01)  # device type - 0x01 5250 Emulator
+        # device type character
+        abyte.append(ord(self.codePage.uni2ebcdic('5')))
         abyte.append(ord(self.codePage.uni2ebcdic('2')))
         abyte.append(ord(self.codePage.uni2ebcdic('5')))
         abyte.append(ord(self.codePage.uni2ebcdic('1')))
         abyte.append(ord(self.codePage.uni2ebcdic('0')))
         abyte.append(ord(self.codePage.uni2ebcdic('1')))
         abyte.append(ord(self.codePage.uni2ebcdic('1')))
-        abyte.append(0x02) ## keyboard id - 0x02 Standard Keyboard
-        abyte.append(0x00) ## extended keyboard id
-        abyte.append(0x00) ## reserved
-        abyte.append(0x00) ## 40 - 43 Display Serial Number
+        abyte.append(0x02)  # keyboard id - 0x02 Standard Keyboard
+        abyte.append(0x00)  # extended keyboard id
+        abyte.append(0x00)  # reserved
+        abyte.append(0x00)  # 40 - 43 Display Serial Number
         abyte.append(36)
         abyte.append(36)
         abyte.append(0x00)
-        abyte.append(0x01)  ## Maximum number of display fields - 256
-        abyte.append(0x00)  ## 0x0100
-        abyte.append(0x0)   ## 46 - 48 reserved set to 0x00
+        abyte.append(0x01)  # Maximum number of display fields - 256
+        abyte.append(0x00)  # 0x0100
+        abyte.append(0x0)  # 46 - 48 reserved set to 0x00
         abyte.append(0x0)
         abyte.append(0x0)
-        abyte.append(0x01)  ## 49 - 53 Controller Display Capability
+        abyte.append(0x01)  # 49 - 53 Controller Display Capability
         abyte.append(16)
         abyte.append(0x0)
         abyte.append(0x0)
@@ -855,13 +855,14 @@ class vt5250:
                    B'001'   - 5292-2 style graphics
           Bit 3-7: B '00000' = reserved (it seems for Client access)
         """
-        abyte.append(0x0)  ## 0x0 is normal emulation
+        abyte.append(0x0)  # 0x0 is normal emulation
         abyte.append(0x0)
         abyte.append(0x0)
         abyte.append(0x0)
         abyte.append(0x0)
         abyte.append(0x0)
-        self.writeGDS(0,0,abyte)
+        self.writeGDS(0, 0, abyte)
+
 
 def test():
     """Test program for tnvtlib.
@@ -889,7 +890,7 @@ def test():
     tn.setScreen(Screen5250.Screen5250())
     tn.open()
     while tn.running:
-       pass
+        pass
     tn.close()
     print('I am here')
     sys.exit
