@@ -2,7 +2,7 @@
 ScreenFields object
 Created by Kenneth J. Pouncey 2002-05-23
 """
-import Screen5250
+
 import ScreenField
 
 __all__ = ["SessionFields"]
@@ -27,22 +27,15 @@ class ScreenFields:
         """
         self.screenFields = []
         self.currentField = None
-        self.sizeFields = 0
-        self.nextField = 0
         self.fieldIds = 0
-        self.cpfExists = 0   # clear the cursor progression fields flag
-        masterMDT = 0
+        self.cpfExists = 0  # clear the cursor progression fields flag
+        self.masterMDT = 0
 
     def existsAtPos(self, pos):
         """
             does a field exist at the position passed in
         """
-        for x in self.fields:
-            sf = self.fields[x]
-            if pos == sf.startPos():
-                self.currentField = sf
-                return 1
-        return 0
+        return int(any(sf.startPos() == pos for sf in self))
 
     def isMasterMDT(self):
         """ Is the master modified data tag set """
@@ -72,11 +65,9 @@ class ScreenFields:
         """
             Set a field in the current session screen 
         """
-        self.screenFields.append(ScreenField.ScreenField(self.screen))
-        sf = self.screenFields[self.nextField]
+        sf = ScreenField.ScreenField(self.screen)
+        self.screenFields.append(sf)
         sf.setField(attr, row - 1, col - 1, len, ffw1, ffw2, fcw1, fcw2)
-        self.nextField += 1
-        self.sizeFields += 1
         if not sf.isBypassField():
             self.fieldIds += 1
             sf.setFieldId(self.fieldIds)
@@ -86,7 +77,7 @@ class ScreenFields:
             self.currentField.next = sf
             sf.prev = self.currentField
         self.currentField = sf
-        masterMDT = self.currentField.mdt
+        self.masterMDT = self.currentField.mdt
         return self.currentField
 
     def readFormatTable(self, boasp, readType, codePage):
@@ -129,20 +120,20 @@ class ScreenFields:
                             k += 1
 
     def __getitem__(self, i):
-        if i < self.sizeFields:
-            return self.screenFields[i]
-        else:
-            raise IndexError
+        return self.screenFields[i]
 
     def getItem(self, i):
-        if i < self.sizeFields:
-            return self.screenFields[i]
-        else:
-            raise IndexError
+        return self[i]
+
+    def __iter__(self):
+        return iter(self.screenFields)
+
+    def __len__(self):
+        return len(self.screenFields)
 
     def getCount(self):
         """ Return the number of fields in the current field plane """
-        return self.sizeFields
+        return len(self)
 
     def isInField(self, pos, chgToField):
         for sf in self.screenFields:
